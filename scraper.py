@@ -191,7 +191,9 @@ def send_email_digest(new_leads):
         print("⚠️ Email configuration missing from env variables. Skipping notification step.")
         return
 
-    sender_email = "cpd-automation-bot@system.local"
+    # Brevo requires a verified sender address. We default to BREVO_USERNAME (your Brevo login email)
+    # which is verified by default, but allow overriding it via BREVO_SENDER_EMAIL.
+    sender_email = os.environ.get("BREVO_SENDER_EMAIL") or smtp_username
 
     msg = MIMEMultipart("alternative")
     msg["Subject"] = "🚨 Bi-Monthly Top 10 NZ Physio CPD Digest"
