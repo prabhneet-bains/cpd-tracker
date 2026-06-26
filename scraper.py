@@ -251,7 +251,21 @@ def main():
         sys.exit(1)
 
     existing_links = set(history_tab.col_values(1))
+    # Execute Discovery Engine
     discovered_urls = discover_nz_physio_links()
+
+    # 🔥 INFRASTRUCTURE FIX: If DuckDuckGo blocks the GitHub Action data center IP,
+    # fall back to your high-yield targeted domains so the run never fails empty.
+    if not discovered_urls:
+        print("⚠️ Open-web search blocked by data center IP limits. Loading high-yield primary targets...")
+        discovered_urls = [
+            "https://pnz.org.nz/pnz-events-directory",
+            "https://physioboard.org.nz/category/education/education-by-format/webinars",
+            "https://sportsphysiotherapy.org.nz/cpd/",
+            "https://www.nzmpa.org.nz/courses/"
+        ]
+
+    print(f"🎯 Processing {len(discovered_urls)} candidates across the pipeline.")
     print(f"🎯 Discovered {len(discovered_urls)} candidates across the open web.")
 
     new_leads = []
