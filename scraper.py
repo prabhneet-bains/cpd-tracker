@@ -25,8 +25,7 @@ class CPDEvent(BaseModel):
     description: str = Field(description="The primary title or topic name of the workshop/webinar/ebook.")
     presented_by: str = Field(description="The specific instructor, panel, speaker, or clinical expert hosting it.")
     what_you_will_learn: str = Field(description="A concise 1-sentence summary detailing what the attendee will learn.")
-    # 🔥 UPDATED: Force Gemini to look for the deep path string/identifier instead of guessing a domain
-    registration_link: str = Field(description="Extract any dynamic reference, event ID, slug, or relative path found near the course context (e.g., '/event/?Event_id=4364' or 'View Details link string').")
+    registration_link: str = Field(description="Extract the URL or relative path for registration/details found in parentheses next to the event link text, e.g., '/courses/123' or 'https://...'")
 
 class CPDEventCollection(BaseModel):
     events: List[CPDEvent] = Field(
@@ -294,7 +293,19 @@ def main():
                 page.goto(url, wait_until="domcontentloaded", timeout=15000)
                 page.wait_for_timeout(2000)
 
-                body_text = page.inner_text("body")
+                # Inject hrefs into link texts to allow the AI to extract correct URLs
+                body_text = page.evaluate("""() => {
+                    document.querySelectorAll('a').forEach(a => {
+                        const href = a.getAttribute('href');
+                        if (href) {
+                            const text = a.innerText.trim();
+                            if (text) {
+                                a.innerText = text + ' (' + href + ')';
+                            }
+                        }
+                    });
+                    return document.body.innerText;
+                }""")
 
                 # 💡 TOKEN FIX: Local Pre-validation Gate
                 # If the webpage text doesn't mention core terms, don't spend AI tokens processing it
