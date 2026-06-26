@@ -40,7 +40,9 @@ def discover_nz_physio_links():
 
     query = '"physiotherapy" CPD workshop New Zealand site:nz'
     encoded_query = urllib.parse.quote(query)
-    url = f"https://html.duckduckgo.com/html/?q={encoded_query}"
+
+    # 🔥 Localize the request parameter directly to New Zealand servers
+    url = f"https://html.duckduckgo.com/html/?q={encoded_query}&kl=nz-en"
 
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
