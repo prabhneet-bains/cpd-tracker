@@ -1,0 +1,33 @@
+name: Bi-Monthly Physio Scraper
+
+on:
+  schedule:
+    # Runs automatically at 00:00 UTC on the 1st and 15th of every month
+    - cron: '0 0 1,15 * *'
+  workflow_dispatch: # Enables a manual "Run Workflow" trigger button in the GitHub UI
+
+jobs:
+  run-scraper:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Clone Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python Runtime
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install System and Python Dependencies
+      run: |
+        pip install -r requirements.txt
+        playwright install chromium --with-deps
+
+    - name: Execute Script Pipeline
+      env:
+        GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        BREVO_USERNAME: ${{ secrets.BREVO_USERNAME }}
+        BREVO_SMTP_KEY: ${{ secrets.BREVO_SMTP_KEY }}
+        MY_PERSONAL_EMAIL: ${{ secrets.MY_PERSONAL_EMAIL }}
+      run: python scraper.py
